@@ -3,37 +3,37 @@
         "qrcode": {
             "extruderTemp": "ET: {{temp}}",
             "showSpoolWeight": "Spole vægt",
-            "showContent": "Print label",
+            "showContent": "Print etiket",
             "showVendorComment": "Sælger kommentarer",
             "spoolWeight": "Spole vægt: {{weight}}",
             "showTemperatures": "Temperaturer",
             "showVendor": "Sælger",
             "showSpoolComment": "Spole kommentarer",
-            "textSize": "Indholdstekst størrelse",
-            "title": "QR kode printer",
+            "textSize": "Etikette tekststørrelse",
+            "title": "Etiketprint",
             "showSpoolmanIcon": "Vis Spoolman logo",
             "showLotNr": "Gruppe nr",
             "bedTemp": "BT: {{temp}}",
             "lotNr": "Gruppe nr: {{lot}}",
             "showFilamentComment": "Filament kommentarer",
-            "button": "Print QR koder",
-            "template": "Skabelon",
-            "templateHelp": "Brug {} til at indsætte værdier for spolen som tekst. For eksempen vil {id} blive erstattet med spolens id, eller {filament.material} vil blive erstattet med materialet på spolen. Omgiv teksten med dobbelte asterisk ** for at gøre teksten fed. Klik på knappen for at vise en liste med mulige tags.",
+            "button": "Print etiketter",
+            "template": "Etiketskabelon",
+            "templateHelp": "Brug {} til at indsætte værdier for spolen som tekst. For eksempel vil {id} blive erstattet med spolens id, eller {filament.material} vil blive erstattet med materialet på spolen. Hvis en værdi mangler, vil den blive erstattet med \"?\". Et andet set af {} kan bruges for at fjerne dette. Derudover vil al tekst mellem sættene af {} blive fjernet, hvis værdien mangler. For eksemel, {Lot Nr: {lot_nr}} vil kun vise etiketten, hvis spolen har et partinummer (Lot Nr). Omgiv teksten med dobbelte asterisk ** for at gøre teksten fed. Klik på knappen for at vise en liste med mulige tags.",
             "useHTTPUrl": {
                 "options": {
-                    "default": "",
-                    "url": ""
+                    "default": "Standard",
+                    "url": "Webadresse"
                 },
-                "preview": "",
-                "tooltip": "",
-                "label": "QR kode link"
+                "preview": "Forhåndsvisning:",
+                "tooltip": "Vil bruge proprietært link, der kun vil virke, hvis skannet med Spoolmans skanningsfunktion (standard). Webadressen bruger enten den basis-webadresse, specificeret i indstillinger, eller den nuværende sides webadresse, hvis ikke indstillet.",
+                "label": "QR-kode link"
             },
             "showQRCodeMode": {
-                "withIcon": "",
-                "no": "",
-                "simple": ""
+                "withIcon": "Med ikon",
+                "no": "Nej",
+                "simple": "Simpel"
             },
-            "showQRCode": ""
+            "showQRCode": "Print QR-kode"
         },
         "generic": {
             "printerMarginBottom": "Safe-Zone bund",
@@ -81,11 +81,11 @@
         "spoolSelect": {
             "selectedTotal_one": "{{count}} spole valgt",
             "selectedTotal_other": "{{count}} spoler valgt",
-            "description": "Vælg spoler der skal printes QR koder til.",
+            "description": "Vælg spoler, der skal printes etiketter til.",
             "showArchived": "Vis arkiverede",
             "title": "Vælg spoler",
             "selectAll": "Vælg alle/ingen",
-            "noSpoolsSelected": "Du har ikke valgt nogle spoler."
+            "noSpoolsSelected": "Du har ikke valgt nogen spoler."
         }
     },
     "documentTitle": {
@@ -125,10 +125,10 @@
     "spool": {
         "fields": {
             "measured_weight": "Målt vægt",
-            "last_used": "Sidst brugt",
+            "last_used": "Sidst anvendt",
             "material": "Materiale",
             "weight_to_use": "Vægt",
-            "lot_nr": "Gruppe nr",
+            "lot_nr": "Partinummer",
             "filament_name": "Filament",
             "comment": "Kommentar",
             "filament": "Filament",
@@ -137,7 +137,7 @@
             "archived": "Arkiveret",
             "remaining_length": "Resterende længde",
             "registered": "Registreret",
-            "first_used": "Først brugt",
+            "first_used": "Først anvendt",
             "used_weight": "Brugt vægt",
             "id": "ID",
             "remaining_weight": "Resterende vægt",
@@ -170,15 +170,15 @@
         },
         "fields_help": {
             "used_weight": "Hvor meget filament er der brugt fra spolen. En ny spole bør have 0g brugt.",
-            "weight_to_use": "Vælg hvilken vægt der skal angives. Målt vægt er kun tilgængelig hvis der er indstillet en spole vægt for det valgte filament.",
-            "measured_weight": "Hvor meget filament OG spole vejer.",
-            "lot_nr": "Producentens \"batchnummer\". Kan bruges til at sikre ensartede farver ved brug af flere ruller.",
-            "remaining_weight": "Hvor meget filament er der tilbage på spolen. For en ny spole bør dette matches spolens vægt.",
-            "location": "Placering af spolen. Hvis du har flere lokationer.",
-            "price": "Pris for en fuld spole. Hvis ikke indstillet, vil prisen bliver estimeret.",
-            "external_filament": "Du har valgt et Filament fra den eksterne database, Et Filament (og muligvis en Producent) vil blive oprettet automatisk når du gemmer denne spole. Dette kan oprette duplikerede objekter, hvis du allerede har dette filament oprettet.",
-            "initial_weight": "Startvægten af filament på spolen (nettovægt). Bruger filamentets standardvægt hvis ikke angivet.",
-            "spool_weight": "Vægten af spolen når den er tom. Et tomt felt vil bruge værdien fra Filament eller Producent."
+            "weight_to_use": "Vælg hvilken vægt der skal angives. Målt vægt er kun tilgængelig, hvis der er indstillet en spolevægt for det valgte filament.",
+            "measured_weight": "Hvor meget filament og spole vejer.",
+            "lot_nr": "Producentens \"batch/partinummer\". Kan bruges til at sikre ensartede farver ved brug af flere ruller.",
+            "remaining_weight": "Hvor meget filament er der tilbage på spolen. For en ny spole bør dette matche spolens vægt.",
+            "location": "Placering af spolen, hvis du opbevarer spoler flere steder.",
+            "price": "Pris for en fuld spole. Hvis ikke indstillet, vil prisen i stedet blive antaget.",
+            "external_filament": "Du har valgt et filament fra den eksterne database. Et filament (og muligvis en producent) vil blive oprettet automatisk, når du gemmer denne spole. Dette kan skabe duplikerede objekter, hvis du allerede har oprettet dette filament.",
+            "initial_weight": "Startvægten af filament på spolen (nettovægt). Bruger filamentets standardvægt, hvis ikke angivet.",
+            "spool_weight": "Vægten af spolen når den er tom. Et tomt felt vil bruge værdien fra filament eller producent."
         },
         "spool": "Spoler",
         "messages": {
@@ -298,16 +298,16 @@
         }
     },
     "scanner": {
-        "title": "QR kode skanner",
+        "title": "QR-kode skanner",
         "error": {
             "insecureContext": "Denne side er ikke sikret med HTTPS.",
             "notReadable": "Kameraet kan ikke indlæses.",
-            "notAllowed": "Du har ikke tilladt adgang til kameraet.",
+            "notAllowed": "Du har ikke givet adgang til kameraet.",
             "unknown": "En ukendt fejl opstod. {{error}}",
             "notFound": "Intet kamera fundet.",
             "streamApiNotSupported": "Denne browser understøtter ikke MediaStream API'et."
         },
-        "description": "Skan en Spoolman QR kode for at se detaljer om spolen."
+        "description": "Skan en Spoolman QR-kode for at se detaljer om spolen."
     },
     "notifications": {
         "deleteSuccess": "Sletning af {{resource}} lykkedes",
