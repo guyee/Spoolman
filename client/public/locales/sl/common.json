@@ -1,0 +1,59 @@
+{
+    "actions": {
+        "list": "Seznam",
+        "create": "Ustvari",
+        "edit": "Uredi",
+        "show": "Prikaži",
+        "clone": "Podvoji"
+    },
+    "buttons": {
+        "create": "Ustvari",
+        "save": "Shrani",
+        "saveAndAdd": "Shrani in dodaj",
+        "logout": "Odjava",
+        "delete": "Izbriši",
+        "edit": "Uredi",
+        "cancel": "Prekliči",
+        "confirm": "Ste prepričani?",
+        "continue": "Nadaljuj",
+        "filter": "Filter",
+        "clear": "Počisti",
+        "refresh": "Osveži",
+        "show": "Prikaži",
+        "undo": "Razveljavi",
+        "import": "Uvozi",
+        "clone": "Podvoji",
+        "archive": "Arhiviraj",
+        "unArchive": "Odstrani iz arhiva",
+        "hideArchived": "Skrij arhiv",
+        "showArchived": "Prikaži arhiv"
+    },
+    "notifications": {
+        "saveSuccessful": "Uspešno shranjeno!"
+    },
+    "loading": "Nalaganje",
+    "version": "Verzija",
+    "unknown": "Neznano",
+    "yes": "Da",
+    "no": "Ne",
+    "tags": {
+        "clone": "Podvoji"
+    },
+    "dashboard": {
+        "title": "Nadzorna plošča"
+    },
+    "printing": {
+        "generic": {
+            "title": "Tiskanje",
+            "print": "Natisni",
+            "columns": "Stolpci",
+            "rows": "Vrste",
+            "paperSize": "Velikost papirja",
+            "customSize": "Po meri",
+            "dimensions": "Dimenzije",
+            "showBorder": "Prikaži obrobo",
+            "layoutSettings": "Nastavitve postavitve",
+            "contentSettings": "Nastavitve vsebine"
+        }
+    }
+}
