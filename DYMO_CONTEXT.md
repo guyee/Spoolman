@@ -47,7 +47,7 @@ DYMO helper:
 - Branch: `main`
 - Remote: `origin` -> `git@github.com:guyee/spoolman-dymo-helper.git`
 - Contract source of truth: `/home/devil/development/sudo_sessions/spoolman_dymo_helper/SERVER_CONTRACT.md`
-- Current pulled helper head when this file was written: `774b0a3`
+- Current pulled helper head when this file was updated for server-side Spoolman work: `2810d01`
 
 ## Corrected Architecture
 
@@ -142,7 +142,7 @@ Treat any non-2xx response or `ok: false` as a Spoolman print failure.
 ## Spoolman Implementation Direction
 
 Backend:
-- Add focused Spoolman API endpoints for DYMO print operations.
+- Focused Spoolman API endpoints for DYMO print operations live under `/api/v1/dymo`.
 - Backend should own the helper base URL and printer name configuration.
 - Prefer environment defaults for this local fork:
   - `SPOOLMAN_DYMO_HELPER_URL=http://192.168.10.91:43191`
@@ -156,6 +156,13 @@ Frontend:
 - Remove or hide browser-local helper URL/printer settings once backend endpoints exist.
 - Keep the existing selected-spool print workflow and explicit `Print Dymo` action.
 - The frontend should send selected spool label data or spool ids to the backend.
+
+Implemented backend route shape:
+- `GET /api/v1/dymo/health` forwards to helper `GET /health`
+- `GET /api/v1/dymo/contract` forwards to helper `GET /contract`
+- `POST /api/v1/dymo/render` forwards structured labels to helper `POST /render`
+- `POST /api/v1/dymo/print` adds `confirmed: true`, applies the configured printer name,
+  and forwards structured labels to helper `POST /print`
 
 Label mapping:
 - QR payload: existing Spoolman QR behavior, normally `WEB+SPOOLMAN:S-<spool_id>` or the configured full URL form.
@@ -171,6 +178,8 @@ Important commits:
 - `2352658` added the GHCR build workflow.
 - `db53c0a` updated the frontend to send structured helper `labels`, but it still
   used browser-to-helper transport.
+- current server-side implementation refactors that browser-helper transport so
+  the frontend calls Spoolman's `/api/v1/dymo/*` backend endpoints instead.
 
 Do not deploy `db53c0a` as the final architecture. It is useful history, but the
 next meaningful Spoolman image should include backend-to-helper printing.

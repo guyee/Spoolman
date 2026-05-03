@@ -466,3 +466,13 @@ def get_base_path() -> str:
 
     # Ensure it starts with / and does not end with /
     return "/" + path.strip("/")
+
+
+def get_dymo_helper_url() -> str:
+    """Get the DYMO helper base URL."""
+    return os.getenv("SPOOLMAN_DYMO_HELPER_URL", "http://192.168.10.91:43191").strip().rstrip("/")
+
+
+def get_dymo_printer_name() -> str:
+    """Get the trusted DYMO printer name."""
+    return os.getenv("SPOOLMAN_DYMO_PRINTER_NAME", "DYMO LabelWriter 450").strip()
