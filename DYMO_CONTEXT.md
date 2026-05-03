@@ -4,6 +4,33 @@ This file is the repo-local memory for DYMO label printing work in this Spoolman
 Use it before changing code, building images, deploying, or coordinating with the
 printer-side helper agent.
 
+## Fork Ownership And Source Of Truth
+
+Yes: this must remain our Spoolman fork for all DYMO implementation.
+
+The custom server-to-server DYMO flow requires Spoolman backend code that is not
+in upstream `Donkie/Spoolman`. The backend endpoints, frontend trigger changes,
+GitHub Actions workflow, GHCR image, and deployment runbook all belong to this
+fork:
+
+```text
+guyee/Spoolman:dymo-label-printing
+```
+
+Use upstream `origin` only as the baseline source for comparing or rebasing
+Spoolman itself. Do not implement DYMO behavior on upstream `origin`, and do not
+expect upstream images to contain the backend-to-helper printer integration.
+
+The deployable Spoolman image must be built from this fork and branch:
+
+```text
+ghcr.io/guyee/spoolman-dymo:<pinned-dymo-tag>
+```
+
+If a future agent sees `origin` in this clone, remember that `origin` is upstream
+Donkie, not our implementation target. The implementation target is remote
+`guyee`, branch `dymo-label-printing`.
+
 ## Repositories
 
 Spoolman fork:
