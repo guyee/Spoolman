@@ -47,8 +47,8 @@ DYMO helper:
 - Branch: `main`
 - Remote: `origin` -> `git@github.com:guyee/spoolman-dymo-helper.git`
 - Contract source of truth: `/home/devil/development/sudo_sessions/spoolman_dymo_helper/SERVER_CONTRACT.md`
-- Current pulled helper head when this file was updated for styled-label contract
-  review: `74d7d32`
+- Current pulled helper head when this file was updated after the styled-label
+  deployment: `9d6d140`
 
 ## Corrected Architecture
 
@@ -188,6 +188,9 @@ Label mapping:
 Styled label contract status:
 - Helper commits `35f6911` and `74d7d32` update the helper to
   `spoolman-dymo-helper-v2` and label contract `spoolman-dymo-30252-v2`.
+- Helper commit `9d6d140` adds `label-requests.log` on the printer computer.
+  That log is not stored in the repo; it is append-only JSONL written next to
+  the running helper for every `/render` and `/print` payload the helper receives.
 - Spoolman commit `ce8f2c6` updates the frontend to send the recommended styled
   segments and the backend to validate/proxy helper-v2 string, single-segment,
   or segment-array text fields.
@@ -228,46 +231,47 @@ next meaningful Spoolman image should be `ce8f2c6` or newer.
 Live Spoolman on `docker-01` is deployed with:
 
 ```text
-ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-c29e891
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-c72237f
 ```
 
 That deployed image reports:
 
 ```text
 version: 0.23.1
-git_commit: c29e891-dymo
-build_date: 2026-05-03T05:03:32Z
+git_commit: c72237f-dymo
+build_date: 2026-05-03T06:06:32Z
 ```
 
 Deployment details from 2026-05-03:
-- evidence directory on `docker-01`: `/mnt/docker_data/container_binds/spoolman/saved_state_fix_deploy_20260503t050451z`
-- rollback container: `spoolman-before-saved-state-fix-20260503t050451z`
-- pre-deploy data archive SHA256: `a96508620d0785e2b4990df8c5fa62946a2c4c2c0eb6325c707405cf778f386d`
+- evidence directory on `docker-01`: `/mnt/docker_data/container_binds/spoolman/styled_dymo_deploy_20260503t070139z`
+- rollback container: `spoolman-before-styled-dymo-20260503t070139z`
+- pre-deploy data archive SHA256: `b9b58be2b84e4b470281f939363473c8407458785b9540bf09928cd0326a231e`
 - current container explicitly sets `SPOOLMAN_DYMO_HELPER_URL=http://192.168.10.91:43191`
 - current container explicitly sets `SPOOLMAN_DYMO_PRINTER_NAME=DYMO LabelWriter 450`
 - safe DYMO checks passed through Spoolman's backend: `/api/v1/dymo/health`,
-  `/api/v1/dymo/contract`, and `/api/v1/dymo/render`
-- `/spool/print?spools=1&return=%2Fspool%2Fshow%2F1` was checked after
-  deployment: the live DOM reports `Print Dymo` without a `disabled` attribute,
-  and a Chrome DevTools Protocol check saw the button state as enabled
+  `/api/v1/dymo/contract`, and `/api/v1/dymo/render` with styled segment
+  payloads
+- live Spoolman was still `c29e891-dymo` before this deployment, which explains
+  why the first label printed after helper v2 came out with the old plain-string
+  payload behavior
 - no physical print endpoint was called during deployment verification
 
 Published image tag:
 
 ```text
-ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-c29e891
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-c72237f
 ```
 
 GitHub Actions run:
 
 ```text
-https://github.com/guyee/Spoolman/actions/runs/25270437469
+https://github.com/guyee/Spoolman/actions/runs/25271556709
 ```
 
 Docker pull digest observed on `docker-01`:
 
 ```text
-sha256:35f409057ac35468e8bff7fcc56d259146fd98fcbaca1b31dcea813bc9060c97
+sha256:4fd276026a8efe713a778c37088178c75c0d664e605e98a6ce8dc7898d952ad8
 ```
 
 ## Image And Deployment
