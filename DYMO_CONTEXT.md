@@ -181,6 +181,9 @@ Important commits:
 - `021293b` refactors the browser-helper transport into the corrected
   server-side architecture: the frontend calls Spoolman's `/api/v1/dymo/*`
   backend endpoints, and the backend calls the printer-computer helper.
+- `4840bca` adds an automatic DYMO readiness check when the print dialog opens,
+  so `Print Dymo` becomes available without requiring the user to find and click
+  `Test Dymo` first.
 
 Do not deploy `db53c0a` as the final architecture. It is useful history, but the
 next meaningful Spoolman image should be `021293b` or newer.
@@ -188,19 +191,19 @@ next meaningful Spoolman image should be `021293b` or newer.
 Live Spoolman on `docker-01` is deployed with:
 
 ```text
-ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-021293b
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-4840bca
 ```
 
 That deployed image reports:
 
 ```text
 version: 0.23.1
-git_commit: 021293b-dymo
+git_commit: 4840bca-dymo
 ```
 
 Deployment details from 2026-05-03:
-- evidence directory on `docker-01`: `/mnt/docker_data/container_binds/spoolman/server_dymo_deploy_20260503t043250z`
-- rollback container: `spoolman-before-server-dymo-20260503t043250z`
+- evidence directory on `docker-01`: `/mnt/docker_data/container_binds/spoolman/auto_dymo_ready_deploy_20260503t044853z`
+- rollback container: `spoolman-before-auto-dymo-ready-20260503t044853z`
 - current container explicitly sets `SPOOLMAN_DYMO_HELPER_URL=http://192.168.10.91:43191`
 - current container explicitly sets `SPOOLMAN_DYMO_PRINTER_NAME=DYMO LabelWriter 450`
 - safe DYMO checks passed through Spoolman's backend: `/api/v1/dymo/health`,
@@ -210,13 +213,13 @@ Deployment details from 2026-05-03:
 Published image tag:
 
 ```text
-ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-021293b
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-4840bca
 ```
 
 GitHub Actions run:
 
 ```text
-https://github.com/guyee/Spoolman/actions/runs/25269720325
+https://github.com/guyee/Spoolman/actions/runs/25270167611
 ```
 
 Published linux/amd64 manifest digest:
