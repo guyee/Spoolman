@@ -184,48 +184,57 @@ Important commits:
 - `4840bca` adds an automatic DYMO readiness check when the print dialog opens,
   so `Print Dymo` becomes available without requiring the user to find and click
   `Test Dymo` first.
+- `c29e891` fixes `useSavedState` so undefined values are removed from
+  `localStorage` instead of being written as the literal string `"undefined"`.
+  That stale saved state crashed `/spool/print` before the DYMO button could
+  become reliably usable.
 
 Do not deploy `db53c0a` as the final architecture. It is useful history, but the
-next meaningful Spoolman image should be `021293b` or newer.
+next meaningful Spoolman image should be `c29e891` or newer.
 
 Live Spoolman on `docker-01` is deployed with:
 
 ```text
-ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-4840bca
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-c29e891
 ```
 
 That deployed image reports:
 
 ```text
 version: 0.23.1
-git_commit: 4840bca-dymo
+git_commit: c29e891-dymo
+build_date: 2026-05-03T05:03:32Z
 ```
 
 Deployment details from 2026-05-03:
-- evidence directory on `docker-01`: `/mnt/docker_data/container_binds/spoolman/auto_dymo_ready_deploy_20260503t044853z`
-- rollback container: `spoolman-before-auto-dymo-ready-20260503t044853z`
+- evidence directory on `docker-01`: `/mnt/docker_data/container_binds/spoolman/saved_state_fix_deploy_20260503t050451z`
+- rollback container: `spoolman-before-saved-state-fix-20260503t050451z`
+- pre-deploy data archive SHA256: `a96508620d0785e2b4990df8c5fa62946a2c4c2c0eb6325c707405cf778f386d`
 - current container explicitly sets `SPOOLMAN_DYMO_HELPER_URL=http://192.168.10.91:43191`
 - current container explicitly sets `SPOOLMAN_DYMO_PRINTER_NAME=DYMO LabelWriter 450`
 - safe DYMO checks passed through Spoolman's backend: `/api/v1/dymo/health`,
   `/api/v1/dymo/contract`, and `/api/v1/dymo/render`
+- `/spool/print?spools=1&return=%2Fspool%2Fshow%2F1` was checked after
+  deployment: the live DOM reports `Print Dymo` without a `disabled` attribute,
+  and a Chrome DevTools Protocol check saw the button state as enabled
 - no physical print endpoint was called during deployment verification
 
 Published image tag:
 
 ```text
-ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-4840bca
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-c29e891
 ```
 
 GitHub Actions run:
 
 ```text
-https://github.com/guyee/Spoolman/actions/runs/25270167611
+https://github.com/guyee/Spoolman/actions/runs/25270437469
 ```
 
-Published linux/amd64 manifest digest:
+Docker pull digest observed on `docker-01`:
 
 ```text
-sha256:e8f111f6140195865ed29aff484a8064b152e566ff16898493479ab67cc652e4
+sha256:35f409057ac35468e8bff7fcc56d259146fd98fcbaca1b31dcea813bc9060c97
 ```
 
 ## Image And Deployment
