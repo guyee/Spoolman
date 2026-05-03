@@ -93,12 +93,19 @@ export function useStoreInitialState(tableId: string, state: TableState) {
 export function useSavedState<T>(id: string, defaultValue: T) {
   const [state, setState] = useState<T>(() => {
     const savedState = isLocalStorageAvailable ? localStorage.getItem(`savedStates-${id}`) : null;
-    return savedState ? JSON.parse(savedState) : defaultValue;
+    if (!savedState || savedState === "undefined") {
+      return defaultValue;
+    }
+    return JSON.parse(savedState);
   });
 
   useEffect(() => {
     if (isLocalStorageAvailable) {
-      localStorage.setItem(`savedStates-${id}`, JSON.stringify(state));
+      if (state === undefined) {
+        localStorage.removeItem(`savedStates-${id}`);
+      } else {
+        localStorage.setItem(`savedStates-${id}`, JSON.stringify(state));
+      }
     }
   }, [id, state]);
 
