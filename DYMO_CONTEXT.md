@@ -47,7 +47,8 @@ DYMO helper:
 - Branch: `main`
 - Remote: `origin` -> `git@github.com:guyee/spoolman-dymo-helper.git`
 - Contract source of truth: `/home/devil/development/sudo_sessions/spoolman_dymo_helper/SERVER_CONTRACT.md`
-- Current pulled helper head when this file was updated for server-side Spoolman work: `2810d01`
+- Current pulled helper head when this file was updated for styled-label contract
+  review: `74d7d32`
 
 ## Corrected Architecture
 
@@ -114,10 +115,10 @@ Structured print request body:
   "labels": [
     {
       "qrText": "web+spoolman:s-123",
-      "brand": "BAMBU",
-      "filamentType": "PLA BASIC",
-      "colorCode": "10804",
-      "colorName": "COBALT BLUE"
+      "brand": [{ "text": "BAMBU", "bold": false }],
+      "filamentType": [{ "text": "PLA BASIC", "bold": true }],
+      "colorCode": [{ "text": "10804", "bold": false }],
+      "colorName": [{ "text": "COBALT BLUE", "bold": true }]
     }
   ]
 }
@@ -125,6 +126,19 @@ Structured print request body:
 
 `confirmed: true` is required for `/print`; omit it for `/render`.
 Each label field is trimmed by the helper and must be 80 characters or fewer.
+
+Helper contract v2 remains backward-compatible with plain string fields, but the
+preferred label style is now styled text segments:
+- `brand`: regular weight by default for the vendor/brand text
+- `filamentType`: bold for material and finish
+- `colorCode`: regular weight, with the helper still adding the leading `#`
+- `colorName`: bold for the color name
+
+Each styled segment is an object with required `text` and optional `bold` and
+`italic` booleans. The helper also accepts a single segment object instead of an
+array. Plain strings are accepted for compatibility, but helper v2 treats string
+segments as bold, so Spoolman must send styled segments to get the intended
+mixed regular/bold label appearance.
 
 Expected helper status codes:
 
@@ -170,6 +184,16 @@ Label mapping:
 - `filamentType`: `filament.material` plus parsed `filament.extra.material_finish` when present
 - `colorCode`: `filament.article_number`, falling back to `filament.color_hex`
 - `colorName`: `filament.name`
+
+Styled label contract status:
+- Helper commits `35f6911` and `74d7d32` update the helper to
+  `spoolman-dymo-helper-v2` and label contract `spoolman-dymo-30252-v2`.
+- Current Spoolman commit `c29e891` still sends plain string fields from the
+  frontend and accepts only strings in `spoolman/api/v1/dymo.py`.
+- Because helper v2 accepts strings, current deployed Spoolman remains
+  compatible. The next Spoolman implementation step is to update both
+  `client/src/pages/printing/dymo.ts` and `spoolman/api/v1/dymo.py` so
+  Spoolman can send and proxy styled segments.
 
 ## Current Branch State
 
