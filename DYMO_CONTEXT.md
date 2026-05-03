@@ -185,20 +185,29 @@ Important commits:
 Do not deploy `db53c0a` as the final architecture. It is useful history, but the
 next meaningful Spoolman image should be `021293b` or newer.
 
-Live Spoolman on `docker-01` was previously deployed with:
+Live Spoolman on `docker-01` is deployed with:
 
 ```text
-ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-2352658
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-021293b
 ```
 
 That deployed image reports:
 
 ```text
 version: 0.23.1
-git_commit: 2352658-dymo
+git_commit: 021293b-dymo
 ```
 
-The server-side implementation image has been published but not deployed yet:
+Deployment details from 2026-05-03:
+- evidence directory on `docker-01`: `/mnt/docker_data/container_binds/spoolman/server_dymo_deploy_20260503t043250z`
+- rollback container: `spoolman-before-server-dymo-20260503t043250z`
+- current container explicitly sets `SPOOLMAN_DYMO_HELPER_URL=http://192.168.10.91:43191`
+- current container explicitly sets `SPOOLMAN_DYMO_PRINTER_NAME=DYMO LabelWriter 450`
+- safe DYMO checks passed through Spoolman's backend: `/api/v1/dymo/health`,
+  `/api/v1/dymo/contract`, and `/api/v1/dymo/render`
+- no physical print endpoint was called during deployment verification
+
+Published image tag:
 
 ```text
 ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-021293b
