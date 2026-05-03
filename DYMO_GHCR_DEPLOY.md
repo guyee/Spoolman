@@ -1,5 +1,9 @@
 # DYMO GHCR Image Deployment
 
+Before changing or deploying DYMO work, read `DYMO_CONTEXT.md`. That file is the
+repo-local source of truth for repository routing, helper ownership, and the
+corrected server-side printing architecture.
+
 This fork publishes the custom DYMO label-printing image as:
 
 ```text
@@ -114,14 +118,23 @@ curl -fsS http://192.168.11.31:7912/api/v1/filament
 curl -fsS http://192.168.11.31:7912/api/v1/spool
 ```
 
-Verify the deployed frontend includes the DYMO print UI:
+Verify the deployed frontend includes the DYMO print UI. For the corrected
+server-side implementation, the deployed frontend should not require a browser
+helper URL such as `127.0.0.1:43191`; the browser should call Spoolman's backend.
 
 ```bash
 asset="$(curl -fsS http://192.168.11.31:7912 | grep -o '/assets/[^"]*spoolQrCodePrintingDialog[^"]*\.js' | head -n 1)"
-curl -fsS "http://192.168.11.31:7912${asset}" | grep -E 'Print Dymo|127\.0\.0\.1:43191'
+curl -fsS "http://192.168.11.31:7912${asset}" | grep -E 'Print Dymo'
 ```
 
-The printer-side helper still needs to be running on the DYMO computer:
+The printer-side helper still needs to be reachable from the Spoolman backend.
+The production helper URL is documented in `DYMO_CONTEXT.md` as:
+
+```text
+http://192.168.10.91:43191
+```
+
+The printer-side agent can test locally on the DYMO computer with:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:43191/printers
