@@ -193,6 +193,12 @@ Styled label contract status:
   or segment-array text fields.
 - The frontend now sends brand and color code as regular weight segments and
   filament type and color name as bold segments.
+- GitHub Actions workflow run `25271556709` built and pushed the styled
+  implementation image from branch head `c72237f`.
+- Pinned styled image tag:
+  `ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-c72237f`
+- linux/amd64 manifest digest for that tag:
+  `sha256:83ad7d046a355b730ed5ae6660479a6315da10a2c8dc903fafaf9be6cb3953da`
 
 ## Current Branch State
 
@@ -213,6 +219,8 @@ Important commits:
   become reliably usable.
 - `ce8f2c6` sends helper-v2 styled DYMO label segments from the frontend and
   proxies those styled segment payloads through Spoolman's backend.
+- `c72237f` records the styled DYMO implementation in repo memory and is the
+  branch head used for the published styled GHCR image.
 
 Do not deploy `db53c0a` as the final architecture. It is useful history, but the
 next meaningful Spoolman image should be `ce8f2c6` or newer.
