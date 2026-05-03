@@ -28,7 +28,6 @@ import {
 import {
   SpoolQRCodePrintSettings,
   renderLabelContents,
-  renderLabelText,
   useGetPrintSettings as useGetPrintPresets,
   useSetPrintSettings as useSetPrintPresets,
 } from "./printing";
@@ -223,17 +222,36 @@ Spool Weight: {filament.spool_weight} g
   const dymoQrValue = (spool: ISpool) =>
     useHTTPUrl ? `${baseUrlRoot}/spool/show/${spool.id}` : `WEB+SPOOLMAN:S-${spool.id}`;
 
+  const cleanDymoLabelValue = (value: unknown, fallback: string) => {
+    const text = typeof value === "string" ? value.trim() : "";
+    return text || fallback;
+  };
+
+  const parseExtraString = (value: unknown) => {
+    if (typeof value !== "string") return "";
+    try {
+      const parsed = JSON.parse(value);
+      return typeof parsed === "string" ? parsed : value;
+    } catch {
+      return value;
+    }
+  };
+
+  const titleCase = (value: string) =>
+    value.replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+
   const buildDymoLabelData = (spool: ISpool): DymoLabelData => {
-    const lines = renderLabelText(template, spool)
-      .replaceAll("**", "")
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean);
+    const filament = spool.filament;
+    const material = cleanDymoLabelValue(filament.material, "");
+    const finish = parseExtraString(filament.extra?.material_finish);
+    const filamentType = [material, finish ? titleCase(finish) : ""].filter(Boolean).join(" ");
 
     return {
-      title: lines[0] ?? `Spool #${spool.id}`,
-      details: lines.slice(1).join("\n"),
-      qr: dymoQrValue(spool),
+      qrText: dymoQrValue(spool),
+      brand: cleanDymoLabelValue(filament.vendor?.name, "Unknown"),
+      filamentType: cleanDymoLabelValue(filamentType, filament.name ?? `Spool #${spool.id}`),
+      colorCode: cleanDymoLabelValue(filament.article_number, filament.color_hex ?? ""),
+      colorName: cleanDymoLabelValue(filament.name, `Spool #${spool.id}`),
     };
   };
 
@@ -451,25 +469,12 @@ Spool Weight: {filament.spool_weight} g
                 />
               </Form.Item>
             )}
-            <Form.Item label="Dymo paper name">
-              <Input
-                value={dymoSettings.paperName}
-                onChange={(e) => updateDymoSettings({ paperName: e.target.value })}
-              />
-            </Form.Item>
             <Form.Item label="Dymo copies">
               <InputNumber
                 min={1}
                 max={20}
                 value={dymoSettings.copies}
                 onChange={(value) => updateDymoSettings({ copies: value ?? 1 })}
-              />
-            </Form.Item>
-            <Form.Item label="Dymo label XML">
-              <TextArea
-                value={dymoSettings.labelTemplateXml}
-                rows={8}
-                onChange={(e) => updateDymoSettings({ labelTemplateXml: e.target.value })}
               />
             </Form.Item>
             <Form.Item label="Dymo status">
