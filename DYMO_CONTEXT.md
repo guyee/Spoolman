@@ -188,12 +188,11 @@ Label mapping:
 Styled label contract status:
 - Helper commits `35f6911` and `74d7d32` update the helper to
   `spoolman-dymo-helper-v2` and label contract `spoolman-dymo-30252-v2`.
-- Current Spoolman commit `c29e891` still sends plain string fields from the
-  frontend and accepts only strings in `spoolman/api/v1/dymo.py`.
-- Because helper v2 accepts strings, current deployed Spoolman remains
-  compatible. The next Spoolman implementation step is to update both
-  `client/src/pages/printing/dymo.ts` and `spoolman/api/v1/dymo.py` so
-  Spoolman can send and proxy styled segments.
+- Spoolman commit `ce8f2c6` updates the frontend to send the recommended styled
+  segments and the backend to validate/proxy helper-v2 string, single-segment,
+  or segment-array text fields.
+- The frontend now sends brand and color code as regular weight segments and
+  filament type and color name as bold segments.
 
 ## Current Branch State
 
@@ -212,9 +211,11 @@ Important commits:
   `localStorage` instead of being written as the literal string `"undefined"`.
   That stale saved state crashed `/spool/print` before the DYMO button could
   become reliably usable.
+- `ce8f2c6` sends helper-v2 styled DYMO label segments from the frontend and
+  proxies those styled segment payloads through Spoolman's backend.
 
 Do not deploy `db53c0a` as the final architecture. It is useful history, but the
-next meaningful Spoolman image should be `c29e891` or newer.
+next meaningful Spoolman image should be `ce8f2c6` or newer.
 
 Live Spoolman on `docker-01` is deployed with:
 
