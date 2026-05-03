@@ -14,6 +14,17 @@ ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-<short-sha>
 ghcr.io/guyee/spoolman-dymo:dymo-label-printing
 ```
 
+Before deploying to `docker-01`, verify the GHCR package is private. An
+unauthenticated manifest check should fail:
+
+```bash
+docker manifest inspect ghcr.io/guyee/spoolman-dymo:0.23.1-dymo
+```
+
+If that command succeeds without `docker login ghcr.io`, the package is public.
+Stop and make the package private in GitHub before deploying, unless a public
+package has been explicitly accepted for this environment.
+
 ## Build
 
 The GitHub Actions workflow `Build DYMO Docker Image` runs on pushes to
