@@ -153,9 +153,9 @@ Backend:
 
 Frontend:
 - The Spoolman UI should call Spoolman's backend, not the helper URL.
-- Remove or hide browser-local helper URL/printer settings once backend endpoints exist.
+- Browser-local helper URL/printer settings have been removed from the DYMO print dialog.
 - Keep the existing selected-spool print workflow and explicit `Print Dymo` action.
-- The frontend should send selected spool label data or spool ids to the backend.
+- The frontend sends selected spool label data to the backend.
 
 Implemented backend route shape:
 - `GET /api/v1/dymo/health` forwards to helper `GET /health`
@@ -178,11 +178,12 @@ Important commits:
 - `2352658` added the GHCR build workflow.
 - `db53c0a` updated the frontend to send structured helper `labels`, but it still
   used browser-to-helper transport.
-- current server-side implementation refactors that browser-helper transport so
-  the frontend calls Spoolman's `/api/v1/dymo/*` backend endpoints instead.
+- `021293b` refactors the browser-helper transport into the corrected
+  server-side architecture: the frontend calls Spoolman's `/api/v1/dymo/*`
+  backend endpoints, and the backend calls the printer-computer helper.
 
 Do not deploy `db53c0a` as the final architecture. It is useful history, but the
-next meaningful Spoolman image should include backend-to-helper printing.
+next meaningful Spoolman image should be `021293b` or newer.
 
 Live Spoolman on `docker-01` was previously deployed with:
 
@@ -195,6 +196,24 @@ That deployed image reports:
 ```text
 version: 0.23.1
 git_commit: 2352658-dymo
+```
+
+The server-side implementation image has been published but not deployed yet:
+
+```text
+ghcr.io/guyee/spoolman-dymo:0.23.1-dymo-021293b
+```
+
+GitHub Actions run:
+
+```text
+https://github.com/guyee/Spoolman/actions/runs/25269720325
+```
+
+Published linux/amd64 manifest digest:
+
+```text
+sha256:e8f111f6140195865ed29aff484a8064b152e566ff16898493479ab67cc652e4
 ```
 
 ## Image And Deployment
