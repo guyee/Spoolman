@@ -243,18 +243,21 @@ Spool Weight: {filament.spool_weight} g
   const titleCase = (value: string) =>
     value.replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
 
+  const dymoSegment = (text: string, bold: boolean) => [{ text, bold }];
+
   const buildDymoLabelData = (spool: ISpool): DymoLabelData => {
     const filament = spool.filament;
     const material = cleanDymoLabelValue(filament.material, "");
     const finish = parseExtraString(filament.extra?.material_finish);
     const filamentType = [material, finish ? titleCase(finish) : ""].filter(Boolean).join(" ");
+    const colorCode = cleanDymoLabelValue(filament.article_number, filament.color_hex ?? "");
 
     return {
       qrText: dymoQrValue(spool),
-      brand: cleanDymoLabelValue(filament.vendor?.name, "Unknown"),
-      filamentType: cleanDymoLabelValue(filamentType, filament.name ?? `Spool #${spool.id}`),
-      colorCode: cleanDymoLabelValue(filament.article_number, filament.color_hex ?? ""),
-      colorName: cleanDymoLabelValue(filament.name, `Spool #${spool.id}`),
+      brand: dymoSegment(cleanDymoLabelValue(filament.vendor?.name, "Unknown"), false),
+      filamentType: dymoSegment(cleanDymoLabelValue(filamentType, filament.name ?? `Spool #${spool.id}`), true),
+      colorCode: colorCode ? dymoSegment(colorCode, false) : undefined,
+      colorName: dymoSegment(cleanDymoLabelValue(filament.name, `Spool #${spool.id}`), true),
     };
   };
 

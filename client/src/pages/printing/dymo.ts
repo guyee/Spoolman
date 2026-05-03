@@ -12,12 +12,20 @@ export interface DymoPrinter {
   isLocal?: boolean;
 }
 
+export interface DymoTextSegment {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+}
+
+export type DymoLabelText = string | DymoTextSegment | DymoTextSegment[];
+
 export interface DymoLabelData {
   qrText: string;
-  brand: string;
-  filamentType: string;
-  colorCode?: string;
-  colorName: string;
+  brand: DymoLabelText;
+  filamentType: DymoLabelText;
+  colorCode?: DymoLabelText;
+  colorName: DymoLabelText;
 }
 
 export const defaultDymoPrintSettings: DymoPrintSettings = {
