@@ -9,7 +9,7 @@ import {
 import { useTranslate } from "@refinedev/core";
 import { Button, Flex, Form, Input, InputNumber, Modal, Popconfirm, Select, Table, Typography, message } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { EntityType, useGetFields } from "../../utils/queryFields";
 import { useGetSetting } from "../../utils/querySettings";
@@ -38,6 +38,8 @@ const { Text } = Typography;
 interface SpoolQRCodePrintingDialog {
   spoolIds: number[];
 }
+
+const formatDymoError = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
 const SpoolQRCodePrintingDialog = ({ spoolIds }: SpoolQRCodePrintingDialog) => {
   const t = useTranslate();
@@ -68,24 +70,33 @@ const SpoolQRCodePrintingDialog = ({ spoolIds }: SpoolQRCodePrintingDialog) => {
     setStoredDymoSettings({ ...dymoSettings, ...settings });
   };
 
-  const formatDymoError = (err: unknown) => (err instanceof Error ? err.message : String(err));
+  const refreshDymoPrinters = useCallback(
+    async (showMessages = true) => {
+      setDymoBusy(true);
+      try {
+        await checkDymoService();
+        const printers = await getDymoPrinters();
+        setDymoPrinters(printers);
+        setDymoServiceReady(true);
 
-  const refreshDymoPrinters = async () => {
-    setDymoBusy(true);
-    try {
-      await checkDymoService();
-      const printers = await getDymoPrinters();
-      setDymoPrinters(printers);
-      setDymoServiceReady(true);
+        if (showMessages) {
+          messageApi.success(`Dymo helper ready. Found ${printers.length} printer${printers.length === 1 ? "" : "s"}.`);
+        }
+      } catch (err) {
+        setDymoServiceReady(false);
+        if (showMessages) {
+          messageApi.error(`Dymo check failed: ${formatDymoError(err)}`);
+        }
+      } finally {
+        setDymoBusy(false);
+      }
+    },
+    [messageApi],
+  );
 
-      messageApi.success(`Dymo helper ready. Found ${printers.length} printer${printers.length === 1 ? "" : "s"}.`);
-    } catch (err) {
-      setDymoServiceReady(false);
-      messageApi.error(`Dymo check failed: ${formatDymoError(err)}`);
-    } finally {
-      setDymoBusy(false);
-    }
-  };
+  useEffect(() => {
+    void refreshDymoPrinters(false);
+  }, [refreshDymoPrinters]);
 
   // Selected preset state
   const [selectedPresetState, setSelectedPresetState] = useSavedState<string | undefined>("selectedPreset", undefined);
@@ -456,7 +467,7 @@ Spool Weight: {filament.spool_weight} g
             </Form.Item>
             <Form.Item label="Dymo status">
               <Flex gap={8} align="center">
-                <Button icon={<SyncOutlined />} loading={dymoBusy} onClick={refreshDymoPrinters}>
+                <Button icon={<SyncOutlined />} loading={dymoBusy} onClick={() => void refreshDymoPrinters()}>
                   Test Dymo
                 </Button>
                 <Text type={dymoServiceReady ? "success" : "secondary"}>
