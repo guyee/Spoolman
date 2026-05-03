@@ -99,7 +99,7 @@ function applyTextFormatting(text: string): ReactElement[] {
   return elements;
 }
 
-export function renderLabelContents(template: string, spool: ISpool): ReactElement {
+export function renderLabelText(template: string, spool: ISpool): string {
   // Find all {tags} in the template string and loop over them
   const matches = [...template.matchAll(/{(?:[^}{]|{[^}{]*})*}/gs)];
   let label_text = template;
@@ -122,6 +122,9 @@ export function renderLabelContents(template: string, spool: ISpool): ReactEleme
     }
   });
 
-  // Split string on \n into individual lines
-  return <>{applyTextFormatting(label_text)}</>;
+  return label_text;
+}
+
+export function renderLabelContents(template: string, spool: ISpool): ReactElement {
+  return <>{applyTextFormatting(renderLabelText(template, spool))}</>;
 }

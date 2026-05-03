@@ -1,8 +1,15 @@
-import { CopyOutlined, DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  PrinterOutlined,
+  SaveOutlined,
+  SyncOutlined,
+} from "@ant-design/icons";
 import { useTranslate } from "@refinedev/core";
-import { Button, Flex, Form, Input, Modal, Popconfirm, Select, Table, Typography, message } from "antd";
+import { Button, Flex, Form, Input, InputNumber, Modal, Popconfirm, Select, Table, Typography, message } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { EntityType, useGetFields } from "../../utils/queryFields";
 import { useGetSetting } from "../../utils/querySettings";
@@ -10,8 +17,18 @@ import { useSavedState } from "../../utils/saveload";
 import { useGetSpoolsByIds } from "../spools/functions";
 import { ISpool } from "../spools/model";
 import {
+  DymoLabelData,
+  DymoPrintSettings,
+  DymoPrinter,
+  checkDymoService,
+  defaultDymoPrintSettings,
+  getDymoPrinters,
+  printDymoLabels,
+} from "./dymo";
+import {
   SpoolQRCodePrintSettings,
   renderLabelContents,
+  renderLabelText,
   useGetPrintSettings as useGetPrintPresets,
   useSetPrintSettings as useSetPrintPresets,
 } from "./printing";
@@ -32,6 +49,14 @@ const SpoolQRCodePrintingDialog = ({ spoolIds }: SpoolQRCodePrintingDialog) => {
       : window.location.origin;
   const [messageApi, contextHolder] = message.useMessage();
   const [useHTTPUrl, setUseHTTPUrl] = useSavedState("print-useHTTPUrl", false);
+  const [storedDymoSettings, setStoredDymoSettings] = useSavedState<DymoPrintSettings>(
+    "print-dymoSettings",
+    defaultDymoPrintSettings,
+  );
+  const [dymoPrinters, setDymoPrinters] = useState<DymoPrinter[]>([]);
+  const [dymoServiceReady, setDymoServiceReady] = useState(false);
+  const [dymoBusy, setDymoBusy] = useState(false);
+  const dymoSettings = { ...defaultDymoPrintSettings, ...storedDymoSettings };
 
   const itemQueries = useGetSpoolsByIds(spoolIds);
   const items = itemQueries
@@ -39,6 +64,37 @@ const SpoolQRCodePrintingDialog = ({ spoolIds }: SpoolQRCodePrintingDialog) => {
       return itemQuery.data ?? null;
     })
     .filter((item) => item !== null) as ISpool[];
+
+  useEffect(() => {
+    setDymoServiceReady(false);
+  }, [dymoSettings.serviceUrl]);
+
+  const updateDymoSettings = (settings: Partial<DymoPrintSettings>) => {
+    setStoredDymoSettings({ ...dymoSettings, ...settings });
+  };
+
+  const formatDymoError = (err: unknown) => (err instanceof Error ? err.message : String(err));
+
+  const refreshDymoPrinters = async () => {
+    setDymoBusy(true);
+    try {
+      await checkDymoService(dymoSettings.serviceUrl);
+      const printers = await getDymoPrinters(dymoSettings.serviceUrl);
+      setDymoPrinters(printers);
+      setDymoServiceReady(true);
+
+      if (!dymoSettings.printerName && printers.length > 0) {
+        updateDymoSettings({ printerName: printers[0].name });
+      }
+
+      messageApi.success(`Dymo helper ready. Found ${printers.length} printer${printers.length === 1 ? "" : "s"}.`);
+    } catch (err) {
+      setDymoServiceReady(false);
+      messageApi.error(`Dymo check failed: ${formatDymoError(err)}`);
+    } finally {
+      setDymoBusy(false);
+    }
+  };
 
   // Selected preset state
   const [selectedPresetState, setSelectedPresetState] = useSavedState<string | undefined>("selectedPreset", undefined);
@@ -163,6 +219,35 @@ Spool Weight: {filament.spool_weight} g
 {{comment}}
 {filament.comment}
 {filament.vendor.comment}`;
+
+  const dymoQrValue = (spool: ISpool) =>
+    useHTTPUrl ? `${baseUrlRoot}/spool/show/${spool.id}` : `WEB+SPOOLMAN:S-${spool.id}`;
+
+  const buildDymoLabelData = (spool: ISpool): DymoLabelData => {
+    const lines = renderLabelText(template, spool)
+      .replaceAll("**", "")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    return {
+      title: lines[0] ?? `Spool #${spool.id}`,
+      details: lines.slice(1).join("\n"),
+      qr: dymoQrValue(spool),
+    };
+  };
+
+  const printSelectedDymoLabels = async () => {
+    setDymoBusy(true);
+    try {
+      await printDymoLabels(dymoSettings, items.map(buildDymoLabelData));
+      messageApi.success(`Sent ${items.length} label${items.length === 1 ? "" : "s"} to Dymo.`);
+    } catch (err) {
+      messageApi.error(`Dymo print failed: ${formatDymoError(err)}`);
+    } finally {
+      setDymoBusy(false);
+    }
+  };
 
   const spoolTags = [
     { tag: "id" },
@@ -300,7 +385,7 @@ Spool Weight: {filament.spool_weight} g
           </>
         }
         items={items.map((spool) => ({
-          value: useHTTPUrl ? `${baseUrlRoot}/spool/show/${spool.id}` : `WEB+SPOOLMAN:S-${spool.id}`,
+          value: dymoQrValue(spool),
           label: (
             <p
               style={{
@@ -342,10 +427,75 @@ Spool Weight: {filament.spool_weight} g
                 {t("actions.show")}
               </Button>
             </Text>
+            <Form.Item label="Dymo helper URL">
+              <Input
+                value={dymoSettings.serviceUrl}
+                onChange={(e) => updateDymoSettings({ serviceUrl: e.target.value })}
+              />
+            </Form.Item>
+            <Form.Item label="Dymo printer">
+              <Input
+                value={dymoSettings.printerName}
+                onChange={(e) => updateDymoSettings({ printerName: e.target.value })}
+              />
+            </Form.Item>
+            {dymoPrinters.length > 0 && (
+              <Form.Item label="Detected printers">
+                <Select
+                  value={dymoSettings.printerName || undefined}
+                  onChange={(value) => updateDymoSettings({ printerName: value })}
+                  options={dymoPrinters.map((printer) => ({
+                    label: `${printer.name}${printer.isConnected === false ? " (not connected)" : ""}`,
+                    value: printer.name,
+                  }))}
+                />
+              </Form.Item>
+            )}
+            <Form.Item label="Dymo paper name">
+              <Input
+                value={dymoSettings.paperName}
+                onChange={(e) => updateDymoSettings({ paperName: e.target.value })}
+              />
+            </Form.Item>
+            <Form.Item label="Dymo copies">
+              <InputNumber
+                min={1}
+                max={20}
+                value={dymoSettings.copies}
+                onChange={(value) => updateDymoSettings({ copies: value ?? 1 })}
+              />
+            </Form.Item>
+            <Form.Item label="Dymo label XML">
+              <TextArea
+                value={dymoSettings.labelTemplateXml}
+                rows={8}
+                onChange={(e) => updateDymoSettings({ labelTemplateXml: e.target.value })}
+              />
+            </Form.Item>
+            <Form.Item label="Dymo status">
+              <Flex gap={8} align="center">
+                <Button icon={<SyncOutlined />} loading={dymoBusy} onClick={refreshDymoPrinters}>
+                  Test Dymo
+                </Button>
+                <Text type={dymoServiceReady ? "success" : "secondary"}>
+                  {dymoServiceReady ? "Ready" : "Not checked"}
+                </Text>
+              </Flex>
+            </Form.Item>
           </>
         }
         extraButtons={
           <>
+            <Button
+              type="primary"
+              size="large"
+              icon={<PrinterOutlined />}
+              loading={dymoBusy}
+              disabled={!dymoServiceReady || !dymoSettings.printerName || items.length === 0}
+              onClick={printSelectedDymoLabels}
+            >
+              Print Dymo
+            </Button>
             <Button
               type="primary"
               size="large"
